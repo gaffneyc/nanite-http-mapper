@@ -45,7 +45,20 @@ module Nanite
         raise 'method error'
       end
 
-      success = Nanite.push(env[PATH], JSON.parse(env[BODY].read))
+      request = JSON.parse(env[BODY].read)
+
+      options = request['options'] || {}
+      payload = request['payload']
+
+      # Convert the options to their symbol equivalents (pull from symbolize_keys in Rails)
+      options.replace(
+        options.inject({}) do |memo, (key, value)|
+          memo[(key.to_sym rescue key) || key] = value
+          memo
+        end
+      )
+
+      success = Nanite.push(env[PATH], payload, options)
 
       [200, HEADER.dup, "#{success}"]
     rescue JSON::ParserError
