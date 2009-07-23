@@ -1,0 +1,7 @@
+# Example amqp config file
+:host: 'magrathea'
+:vhost: /nanite
+:user: nanite
+:pass: 'mongo_the_planet_destroyer'
+:persistent: false
+:log_level: debug

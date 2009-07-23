@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.expand_path(File.join(File.dirname(__FILE__), %w{.. lib}))
+
+require 'optparse'
+
+require 'thin'
+require 'nanite/rack_mapper'
+
+mapper_options = {
+  :daemonize => false,
+  :log_file  => "/var/log/nanite-http-mapper.log",
+  :pid_file  => "/var/run/nanite-http-mapper.pid",
+  :config    => nil
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: nanite-http-mapper [options]"
+
+  opts.on("-d", "--daemonize", "Run daemonized in the background") do
+    mapper_options[:daemonize] = true
+  end
+
+  opts.on("-l", "--log FILE", "Where to log stuff (default: #{mapper_options[:log_file]})") do |file|
+    mapper_options[:log_file] = file
+  end
+
+  opts.on("-P", "--pid FILE", "File to store PID (default: #{mapper_options[:pid_file]})") do |file|
+    mapper_options[:pid_file] = file
+  end
+
+  opts.on("-c", "--config FILE", "AMQP connection config file") do |file|
+    mapper_options[:config] = file
+  end
+end.parse!
+
+server =
+  Thin::Server.new('0.0.0.0', 18450) do
+    use Rack::CommonLogger
+
+    run Nanite::RackMapper.new(mapper_options[:config])
+  end
+
+server.log_file = mapper_options[:log_file]
+server.pid_file = mapper_options[:pid_file]
+
+server.daemonize if(mapper_options[:daemonize])
+server.start
+
+# vim:filetype=ruby

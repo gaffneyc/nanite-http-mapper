@@ -1,0 +1,6 @@
+# Metadata
+.*.swp
+.DS_Store
+
+# Build artifacts
+pkg
