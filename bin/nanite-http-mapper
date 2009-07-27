@@ -15,7 +15,7 @@ mapper_options = {
 }
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: nanite-http-mapper [options]"
+  opts.banner = "Usage: nanite-http-mapper [options] (start|stop)"
 
   opts.on("-d", "--daemonize", "Run daemonized in the background") do
     mapper_options[:daemonize] = true
@@ -34,17 +34,24 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-server =
-  Thin::Server.new('0.0.0.0', 18450) do
-    use Rack::CommonLogger
+case command = ARGV.shift
+when 'start'
+  server =
+    Thin::Server.new('0.0.0.0', 18450) do
+      use Rack::CommonLogger
 
-    run Nanite::RackMapper.new(mapper_options[:config])
-  end
+      run Nanite::RackMapper.new(mapper_options[:config])
+    end
 
-server.log_file = mapper_options[:log_file]
-server.pid_file = mapper_options[:pid_file]
+  server.log_file = mapper_options[:log_file]
+  server.pid_file = mapper_options[:pid_file]
 
-server.daemonize if(mapper_options[:daemonize])
-server.start
+  server.daemonize if(mapper_options[:daemonize])
+  server.start
+when 'stop'
+  Thin::Server.kill(mapper_options[:pid_file])
+else
+  puts "Unknown command: #{command}"
+end
 
 # vim:filetype=ruby
