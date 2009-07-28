@@ -50,6 +50,9 @@ module Nanite
       options = request['options'] || {}
       payload = request['payload']
 
+      # Default options (change to round-robin by default).
+      options[:selector] ||= :rr
+
       # Convert the options to their symbol equivalents (pull from symbolize_keys in Rails)
       options.replace(
         options.inject({}) do |memo, (key, value)|
