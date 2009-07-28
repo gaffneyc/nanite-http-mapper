@@ -11,7 +11,7 @@ mapper_options = {
   :daemonize => false,
   :log_file  => "/var/log/nanite-http-mapper.log",
   :pid_file  => "/var/run/nanite-http-mapper.pid",
-  :config    => nil
+  :config    => "/etc/nanite-http-mapper.yml"
 }
 
 OptionParser.new do |opts|
@@ -29,18 +29,26 @@ OptionParser.new do |opts|
     mapper_options[:pid_file] = file
   end
 
-  opts.on("-c", "--config FILE", "AMQP connection config file") do |file|
+  opts.on("-c", "--config FILE", "AMQP connection config file (default: #{mapper_options[:config]})") do |file|
     mapper_options[:config] = file
   end
 end.parse!
 
 case command = ARGV.shift
 when 'start'
+  config_file = mapper_options[:config]
+
+  # Ensure the the config file exists.
+  if(!File.exists?(config_file))
+    STDERR.puts("Unable to find config file: #{config_file}")
+    exit 1
+  end
+
   server =
     Thin::Server.new('0.0.0.0', 18450) do
       use Rack::CommonLogger
 
-      run Nanite::RackMapper.new(mapper_options[:config])
+      run Nanite::RackMapper.new(config_file)
     end
 
   server.log_file = mapper_options[:log_file]
