@@ -9,14 +9,14 @@ GEM_VERSION = "0.9.0"
 spec = Gem::Specification.new do |s|
   s.name = GEM
   s.version = GEM_VERSION
-  s.author = "Chris Gaffney"
-  s.email  = "cgaffney@crayoninterface.com"
+  s.authors = ["Chris Gaffney", "Jason Roelofs"]
+  s.email   = ["cgaffney@crayoninterface.com", "jroelofs@crayoninterface.com"]
   #s.homepage = "http://example.com"
   s.description = s.summary = "Basic thin + rack service for a long running nanite mapper that receives work requests via http"
   
   s.platform = Gem::Platform::RUBY
   s.has_rdoc = false
-  #s.extra_rdoc_files = ["README", "LICENSE", 'TODO']
+  s.extra_rdoc_files = [ "README.rdoc", "LICENSE" ]
 
   # Configure executables
   s.bindir = "bin"
